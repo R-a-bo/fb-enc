@@ -1,0 +1,39 @@
+{
+	"name": "Facebook Encrypter",
+	"version": "0.1",
+	"description": "Encrypts Facebook content",
+	"manifest_version": 2,
+
+	"content_security_policy": "script-src 'self' https://www.gstatic.com/ https://cdn.firebase.com https://*.firebaseio.com; object-src 'self'",
+
+	"icons": {
+		"16": "round_bear_16.png",
+		"32": "round_bear_32.png",
+		"48": "round_bear_48.png",
+		"128": "round_bear_128.png"
+	},
+
+	"browser_action": {
+		"default_icon": "round_bear_16.png",
+		"default_popup": "popup.html",
+		"default_title": "TODO: fix this"
+	},
+
+	"background": {
+		"page": "background.html",
+		"persistent": false
+	},
+
+	"content_scripts": [
+		{
+			"matches": ["https://www.facebook.com/groups/397822544687851"],
+			"js": ["decrypt.js"],
+			"run_at": "document_end"
+		}
+	],
+
+	"permissions":  [
+		"storage",
+		"http://www.wikipedia.org/*"
+	]
+}
