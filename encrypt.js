@@ -34,7 +34,7 @@ function getRandWikiHash() {
 		const wikiText = wikiPagesObj[Object.keys(wikiPagesObj)[0]].extract;
 		const formattedWikiText = wikiText.replace(/(\n)/g, " ");
 		const truncatedWikiText = formattedWikiText.slice(0, 400);
-		alert("wikitext: @@" + truncatedWikiText + "@@");
+		alert("@@" + truncatedWikiText + "@@");
 		return crypto.subtle.digest('SHA-256', asciiToUint8Array(truncatedWikiText));
 	})
 }
