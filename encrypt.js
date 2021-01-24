@@ -19,7 +19,6 @@ function documentEvents() {
     		const ciphertextHexString = bytesToHexString(new Uint8Array(results[0]));
     		const hashString = bytesToHexString(new Uint8Array(results[1]));
     		chrome.runtime.sendMessage({command: "write", ciphertext: ciphertextHexString, hash: hashString}, function(response) {});
-    		// alert("ciphertext: " + ciphertextHexString + "\n wikitext: " + hashString);
     	});
 
 
@@ -34,8 +33,9 @@ function getRandWikiHash() {
 		const wikiPagesObj = result.query.pages;
 		const wikiText = wikiPagesObj[Object.keys(wikiPagesObj)[0]].extract;
 		const formattedWikiText = wikiText.replace(/(\n)/g, " ");
-		alert("wikitext: @@" + formattedWikiText + "@@");
-		return crypto.subtle.digest('SHA-256', asciiToUint8Array(formattedWikiText));
+		const truncatedWikiText = formattedWikiText.slice(0, 400);
+		alert("wikitext: @@" + truncatedWikiText + "@@");
+		return crypto.subtle.digest('SHA-256', asciiToUint8Array(truncatedWikiText));
 	})
 }
 
