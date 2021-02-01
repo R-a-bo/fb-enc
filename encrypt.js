@@ -8,23 +8,73 @@ document.addEventListener('DOMContentLoaded', documentEvents  , false);
 //     encrypt(hexStringToUint8Array("6bc1bee22e409f96e93d7e117393172aae2d8a571e03ac9c9eb76fac45af8e5130c81c46a35ce411e5fbc1191a0a52eff69f2445df4f9b17ad2b417be6"));
 // }
 
-function documentEvents() {    
-  document.getElementById('encode_btn').addEventListener('click', 
-    function() { 
+function documentEvents() {
+    var groupKey;
 
-    	const plaintextArray = asciiToUint8Array(document.getElementById('input_box').value);
+    chrome.storage.local.get(["aes_key"], function(result) {
+        if (typeof result.aes_key == 'undefined') {
+            document.getElementById("key_input").style.display = "block";
+            document.getElementById("save_key_btn").style.display = "block";
+        } else {
+            groupKey = result.aes_key;
+            console.log("group key set: " + groupKey);
+            document.getElementById("input_box").style.display = "block";
+            document.getElementById("encode_btn").style.display = "block";
+            document.getElementById("change_key_btn").style.display = "block";
+        }
+    });
 
-    	Promise.all([encrypt(plaintextArray), getRandWikiHash()])
-    	.then(function(results) {
-    		const ciphertextHexString = bytesToHexString(new Uint8Array(results[0]));
-    		const hashString = bytesToHexString(new Uint8Array(results[1]));
-    		chrome.runtime.sendMessage({command: "write", ciphertext: ciphertextHexString, hash: hashString}, function(response) {});
-    	});
+    document.getElementById('change_key_btn').addEventListener('click',
+        function() {
+            document.getElementById("key_input").style.display = "block";
+            document.getElementById("save_key_btn").style.display = "block";
+            document.getElementById("cancel_key_change_btn").style.display = "block";
+            document.getElementById("input_box").style.display = "none";
+            document.getElementById("encode_btn").style.display = "none";
+            document.getElementById("change_key_btn").style.display = "none";
+    });
 
+    document.getElementById('cancel_key_change_btn').addEventListener('click',
+        function() {
+            document.getElementById("key_input").style.display = "none";
+            document.getElementById("save_key_btn").style.display = "none";
+            document.getElementById("cancel_key_change_btn").style.display = "none";
+            document.getElementById("input_box").style.display = "block";
+            document.getElementById("encode_btn").style.display = "block";
+            document.getElementById("change_key_btn").style.display = "block";
+    });
 
-    	// set_key();
-    	// get_key();
-  });
+    document.getElementById('encode_btn').addEventListener('click', 
+        function() { 
+        	const plaintextArray = asciiToUint8Array(document.getElementById('input_box').value);
+
+            console.log("passing group key to encrypt: " + groupKey);
+        	Promise.all([encrypt(plaintextArray, groupKey), getRandWikiHash()])
+        	.then(function(results) {
+        		const ciphertextHexString = bytesToHexString(new Uint8Array(results[0]));
+        		const hashString = bytesToHexString(new Uint8Array(results[1]));
+        		chrome.runtime.sendMessage({command: "write", ciphertext: ciphertextHexString, hash: hashString}, function(response) {});
+        	});
+    });
+
+    document.getElementById('save_key_btn').addEventListener('click',
+        function() {
+            const keyString = document.getElementById('key_input').value;
+            groupKey = {
+                "kty": "oct",
+                "alg": "A256CBC",
+                "use": "enc",
+                "ext": true,
+                "k": keyString
+            };
+            chrome.storage.local.set({ "aes_key": groupKey}, function() {
+                document.getElementById("key_input").style.display = "none";
+                document.getElementById("save_key_btn").style.display = "none";
+                document.getElementById("input_box").style.display = "block";
+                document.getElementById("encode_btn").style.display = "block";
+                document.getElementById("change_key_btn").style.display = "block";
+            });
+    });
 }
 
 function getRandWikiHash() {
@@ -54,38 +104,38 @@ function getRandWikiPage() {
 	});
 }
 
-function encrypt(plaintext) {
+function encrypt(plaintext, jwkKey) {
 	var iv = hexStringToUint8Array("000102030405060708090a0b0c0d0e0f");
-	var jwkKey = {
-	    "kty": "oct",
-	    "alg": "A256CBC",
-	    "use": "enc",
-	    "ext": true,
-	    "k": "YD3rEBXKcb4rc67whX13gR81LAc7YQjXLZgQowkU3_Q"
-	};
+	// var jwkKey = {
+	//     "kty": "oct",
+	//     "alg": "A256CBC",
+	//     "use": "enc",
+	//     "ext": true,
+	//     "k": "YD3rEBXKcb4rc67whX13gR81LAc7YQjXLZgQowkU3_Q"
+	// };
 	return crypto.subtle.importKey("jwk", jwkKey, {name: 'AES-CBC'}, false, ["encrypt"])
 	.then(function(result) {
 		return crypto.subtle.encrypt({name: "aes-cbc", iv: iv}, result, plaintext);
 	});
 }
 
-// function get_key() {
-// 	chrome.storage.sync.get(["aes_key"], function(result) {
-// 		console.log('key value gotten: ' + result.aes_key.kty);
-// 	});
-// }
+function get_key() {
+	chrome.storage.local.get(["aes_key"], function(result) {
+		console.log('key value gotten: ' + result.aes_key.k);
+	});
+}
 
-// function set_key() {
-// 	chrome.storage.sync.set({ "aes_key": {
-// 	    "kty": "oct",
-// 	    "alg": "A256CBC",
-// 	    "use": "enc",
-// 	    "ext": true,
-// 	    "k": "YD3rEBXKcb4rc67whX13gR81LAc7YQjXLZgQowkU3_Q"
-// 	}}, function() {
-// 		console.log('key value set');
-// 	});
-// }
+function set_key() {
+	chrome.storage.local.set({ "aes_key": {
+	    "kty": "oct",
+	    "alg": "A256CBC",
+	    "use": "enc",
+	    "ext": true,
+	    "k": "YD3rEBXKcb4rc67whX13gR81LAc7YQjXLZgQowkU3_Q"
+	}}, function() {
+		console.log('key value set');
+	});
+}
 
 // copy pasted functions, to be removed later
 function hexStringToUint8Array(hexString)

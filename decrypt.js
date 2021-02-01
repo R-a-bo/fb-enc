@@ -24,21 +24,23 @@ function substituteText(dummyText, textNode) {
 
 function decrypt(ciphertext, textNode) {
 	var iv = hexStringToUint8Array("000102030405060708090a0b0c0d0e0f");
-	var jwkKey = {
-	    "kty": "oct",
-	    "alg": "A256CBC",
-	    "use": "enc",
-	    "ext": true,
-	    "k": "YD3rEBXKcb4rc67whX13gR81LAc7YQjXLZgQowkU3_Q"
-	};
-	crypto.subtle.importKey("jwk", jwkKey, {name: 'AES-CBC'}, false, ["decrypt"])
-	.then(function(result) {
-		return crypto.subtle.decrypt({name: "aes-cbc", iv: iv}, result, ciphertext);
-	})
-	.then(function(result) {
-		decryptionResult = bytesToASCIIString(new Uint8Array(result));
-		console.log("decryption result: " + decryptionResult);
-		textNode.nodeValue = decryptionResult;
+	// var jwkKey = {
+	//     "kty": "oct",
+	//     "alg": "A256CBC",
+	//     "use": "enc",
+	//     "ext": true,
+	//     "k": "YD3rEBXKcb4rc67whX13gR81LAc7YQjXLZgQowkU3_Q"
+	// };
+	chrome.storage.local.get(["aes_key"], function(storageResult) {
+		crypto.subtle.importKey("jwk", storageResult.aes_key, {name: 'AES-CBC'}, false, ["decrypt"])
+		.then(function(result) {
+			return crypto.subtle.decrypt({name: "aes-cbc", iv: iv}, result, ciphertext);
+		})
+		.then(function(result) {
+			decryptionResult = bytesToASCIIString(new Uint8Array(result));
+			console.log("decryption result: " + decryptionResult);
+			textNode.nodeValue = decryptionResult;
+		});
 	});
 }
 

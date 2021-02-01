@@ -5,8 +5,13 @@
 		<script src="encrypt.js"></script>
 	</head>
 	<body>
-		<textarea id='input_box' rows='10' cols='50'></textarea>
-		<button id='encode_btn' type='button'>Encode Text</button>
+		<textarea id='input_box' rows='10' cols='50' style="display:none"></textarea>
+		<button id='encode_btn' type='button' style="display:none">Encode Text</button>
 		<p id='output'></p>
+		<button id='change_key_btn' type='button' style="display:none">Change Key</button>
+
+		<textarea id='key_input' rows='1' cols='43' style="display:none"></textarea>
+		<button id='save_key_btn' type='button' style="display:none">Save Key</button>
+		<button id='cancel_key_change_btn' type='button' style="display:none">Cancel</button>
 	</body>
 </html>
