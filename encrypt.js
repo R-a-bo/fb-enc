@@ -1,12 +1,7 @@
-//TODO: im literally just adding comments
-// to try to get the sublime text registration message
-// but god damn it wont work
+// JS for popup.html
+// Manages the visibility of html elements and encryption
 
 document.addEventListener('DOMContentLoaded', documentEvents  , false);
-
-// function handle_input(input) { 
-//     encrypt(hexStringToUint8Array("6bc1bee22e409f96e93d7e117393172aae2d8a571e03ac9c9eb76fac45af8e5130c81c46a35ce411e5fbc1191a0a52eff69f2445df4f9b17ad2b417be6"));
-// }
 
 function documentEvents() {
     var groupKey;
@@ -106,13 +101,6 @@ function getRandWikiPage() {
 
 function encrypt(plaintext, jwkKey) {
 	var iv = hexStringToUint8Array("000102030405060708090a0b0c0d0e0f");
-	// var jwkKey = {
-	//     "kty": "oct",
-	//     "alg": "A256CBC",
-	//     "use": "enc",
-	//     "ext": true,
-	//     "k": "YD3rEBXKcb4rc67whX13gR81LAc7YQjXLZgQowkU3_Q"
-	// };
 	return crypto.subtle.importKey("jwk", jwkKey, {name: 'AES-CBC'}, false, ["encrypt"])
 	.then(function(result) {
 		return crypto.subtle.encrypt({name: "aes-cbc", iv: iv}, result, plaintext);
@@ -137,7 +125,6 @@ function set_key() {
 	});
 }
 
-// copy pasted functions, to be removed later
 function hexStringToUint8Array(hexString)
 {
     if (hexString.length % 2 != 0)
