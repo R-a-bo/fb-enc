@@ -77,8 +77,9 @@ function getRandWikiHash() {
 	.then(function(result) {
 		const wikiPagesObj = result.query.pages;
 		const wikiText = wikiPagesObj[Object.keys(wikiPagesObj)[0]].extract;
-		const formattedWikiText = wikiText.replace(/(\n)/g, " ");
-		const truncatedWikiText = formattedWikiText.slice(0, 400);
+		const lineBreaksRemoved = wikiText.replace(/(\n)/g, " ");
+        const linksRemoved = lineBreaksRemoved.replace(/(\S)\.(\S)/g, "$1 $2");
+		const truncatedWikiText = linksRemoved.slice(0, 400);
         const outputText = "@@" + truncatedWikiText + "@@";
 		alert(outputText);
         document.getElementById('output').innerHTML = outputText;
