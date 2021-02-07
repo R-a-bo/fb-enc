@@ -23,7 +23,9 @@ function substituteText(dummyText, textNode) {
 }
 
 function decrypt(ciphertext, textNode) {
-	var iv = hexStringToUint8Array("000102030405060708090a0b0c0d0e0f");
+	// var iv = hexStringToUint8Array("000102030405060708090a0b0c0d0e0f");
+	var iv = ciphertext.slice(0, 16);
+	var payload = ciphertext.slice(16);
 	// var jwkKey = {
 	//     "kty": "oct",
 	//     "alg": "A256CBC",
@@ -34,7 +36,7 @@ function decrypt(ciphertext, textNode) {
 	chrome.storage.local.get(["aes_key"], function(storageResult) {
 		crypto.subtle.importKey("jwk", storageResult.aes_key, {name: 'AES-CBC'}, false, ["decrypt"])
 		.then(function(result) {
-			return crypto.subtle.decrypt({name: "aes-cbc", iv: iv}, result, ciphertext);
+			return crypto.subtle.decrypt({name: "aes-cbc", iv: iv}, result, payload);
 		})
 		.then(function(result) {
 			decryptionResult = bytesToASCIIString(new Uint8Array(result));

@@ -1,6 +1,10 @@
 // JS for popup.html
 // Manages the visibility of html elements and encryption
 
+// var testArray = new Uint8Array(16);
+// crypto.getRandomValues(testArray);
+// alert(bytesToHexString(testArray));
+
 document.addEventListener('DOMContentLoaded', documentEvents  , false);
 
 function documentEvents() {
@@ -46,7 +50,7 @@ function documentEvents() {
             console.log("passing group key to encrypt: " + groupKey);
         	Promise.all([encrypt(plaintextArray, groupKey), getRandWikiHash()])
         	.then(function(results) {
-        		const ciphertextHexString = bytesToHexString(new Uint8Array(results[0]));
+        		const ciphertextHexString = bytesToHexString(results[0]);
         		const hashString = bytesToHexString(new Uint8Array(results[1]));
         		chrome.runtime.sendMessage({command: "write", ciphertext: ciphertextHexString, hash: hashString}, function(response) {});
         	});
@@ -101,11 +105,17 @@ function getRandWikiPage() {
 }
 
 function encrypt(plaintext, jwkKey) {
-	var iv = hexStringToUint8Array("000102030405060708090a0b0c0d0e0f");
+    var iv = new Uint8Array(16);
+    crypto.getRandomValues(iv);
 	return crypto.subtle.importKey("jwk", jwkKey, {name: 'AES-CBC'}, false, ["encrypt"])
 	.then(function(result) {
 		return crypto.subtle.encrypt({name: "aes-cbc", iv: iv}, result, plaintext);
-	});
+	}).then(function(result) {
+        var appendedArray = new Uint8Array(16 + new Uint8Array(result).length);
+        appendedArray.set(iv);
+        appendedArray.set(new Uint8Array(result), iv.length);
+        return appendedArray;
+    });
 }
 
 function get_key() {
