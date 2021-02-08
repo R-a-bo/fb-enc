@@ -26,7 +26,7 @@
 
 	"content_scripts": [
 		{
-			"matches": ["https://www.facebook.com/groups/397822544687851"],
+			"matches": ["https://www.facebook.com/groups/*"],
 			"js": ["decrypt.js"],
 			"run_at": "document_end"
 		}
