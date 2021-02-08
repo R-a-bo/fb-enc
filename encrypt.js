@@ -1,10 +1,6 @@
 // JS for popup.html
 // Manages the visibility of html elements and encryption
 
-// var testArray = new Uint8Array(16);
-// crypto.getRandomValues(testArray);
-// alert(bytesToHexString(testArray));
-
 document.addEventListener('DOMContentLoaded', documentEvents  , false);
 
 function documentEvents() {
@@ -16,7 +12,6 @@ function documentEvents() {
             document.getElementById("save_key_btn").style.display = "block";
         } else {
             groupKey = result.aes_key;
-            console.log("group key set: " + groupKey);
             document.getElementById("input_box").style.display = "block";
             document.getElementById("encode_btn").style.display = "block";
             document.getElementById("change_key_btn").style.display = "block";
@@ -46,8 +41,6 @@ function documentEvents() {
     document.getElementById('encode_btn').addEventListener('click', 
         function() { 
         	const plaintextArray = asciiToUint8Array(document.getElementById('input_box').value);
-
-            console.log("passing group key to encrypt: " + groupKey);
         	Promise.all([encrypt(plaintextArray, groupKey), getRandWikiHash()])
         	.then(function(results) {
         		const ciphertextHexString = bytesToHexString(results[0]);
@@ -118,24 +111,9 @@ function encrypt(plaintext, jwkKey) {
     });
 }
 
-function get_key() {
-	chrome.storage.local.get(["aes_key"], function(result) {
-		console.log('key value gotten: ' + result.aes_key.k);
-	});
-}
-
-function set_key() {
-	chrome.storage.local.set({ "aes_key": {
-	    "kty": "oct",
-	    "alg": "A256CBC",
-	    "use": "enc",
-	    "ext": true,
-	    "k": "YD3rEBXKcb4rc67whX13gR81LAc7YQjXLZgQowkU3_Q"
-	}}, function() {
-		console.log('key value set');
-	});
-}
-
+// byte/hex/ascii translation functions
+// bororwed from WebCrypto API Chrome test files:
+//   https://chromium.googlesource.com/chromium/blink/+/master/LayoutTests/crypto/
 function hexStringToUint8Array(hexString)
 {
     if (hexString.length % 2 != 0)

@@ -1,38 +1,19 @@
-/* TODO: DOCUMENT
-i am once again
-trying to get the sublime text registration message
-*/
+// content script to perform decyprtion of facebook posts
 
 function substituteText(dummyText, textNode) {
-	console.log("dummText: " + dummyText)
 	crypto.subtle.digest("SHA-256", asciiToUint8Array(dummyText))
 	.then(function(hash) {
 		const hashString = bytesToHexString(new Uint8Array(hash));
 		chrome.runtime.sendMessage({command: "read", hash: hashString}, function(response) {
-			console.log("response: " + response);
-			console.log("ciphertext: " + response.ciphertext);
 			const cipherTextArray = hexStringToUint8Array(response.ciphertext);
 			decrypt(cipherTextArray, textNode);
 		});
-		// return cipherText;
 	});
-	// .then(function(ciphertext) {
-	// 	const cipherTextArray = hexStringToUint8Array(ciphertext);
-	// 	decrypt(cipherTextArray, textNode);
-	// });
 }
 
 function decrypt(ciphertext, textNode) {
-	// var iv = hexStringToUint8Array("000102030405060708090a0b0c0d0e0f");
 	var iv = ciphertext.slice(0, 16);
 	var payload = ciphertext.slice(16);
-	// var jwkKey = {
-	//     "kty": "oct",
-	//     "alg": "A256CBC",
-	//     "use": "enc",
-	//     "ext": true,
-	//     "k": "YD3rEBXKcb4rc67whX13gR81LAc7YQjXLZgQowkU3_Q"
-	// };
 	chrome.storage.local.get(["aes_key"], function(storageResult) {
 		crypto.subtle.importKey("jwk", storageResult.aes_key, {name: 'AES-CBC'}, false, ["decrypt"])
 		.then(function(result) {
@@ -40,14 +21,13 @@ function decrypt(ciphertext, textNode) {
 		})
 		.then(function(result) {
 			decryptionResult = bytesToASCIIString(new Uint8Array(result));
-			console.log("decryption result: " + decryptionResult);
 			textNode.nodeValue = decryptionResult;
 		});
 	});
 }
 
 function walk(rootNode) {
-	// find al text nodes
+	// find all text nodes
 	var walker = document.createTreeWalker(
 		rootNode,
 		NodeFilter.SHOW_TEXT,
@@ -67,14 +47,7 @@ function handleText(textNode) {
 
 	text = v.match(/@@(.*)@@/);
 	if (text != null) {
-		console.log("pattern found");
-		// decrypt(hexStringToUint8Array(text[1]), textNode);
 		substituteText(text[1], textNode);
-		// decrypt(hexStringToUint8Array(text[1])).then(function(result) {
-		// 	decryptionResult = bytesToASCIIString(new Uint8Array(result));
-		// 	console.log("decryption result: " + decryptionResult);
-		// 	textNode.nodeValue = decryptionResult;
-		// });
 	} else {
 		textNode.nodeValue =  v;
 	}
@@ -121,7 +94,9 @@ function walkAndObserve(doc) {
 	bodyObserver.observe(doc.body, observerConfig);
 }
 
-// copy pasted functions, to be removed later
+// byte/hex/ascii translation functions
+// bororwed from WebCrypto API Chrome test files:
+//   https://chromium.googlesource.com/chromium/blink/+/master/LayoutTests/crypto/
 function hexStringToUint8Array(hexString)
 {
     if (hexString.length % 2 != 0)
