@@ -3,9 +3,12 @@
 	<head>
 		<title>fbenc Popup</title>
 		<script src="encrypt.js"></script>
+		<style>
+			button {margin-top: 5px;}
+		</style>
 	</head>
 	<body>
-		<textarea id='input_box' rows='10' cols='50' style="display:none"></textarea>
+		<textarea id='input_box' rows='10' cols='50' style="display:none; resize:none"></textarea>
 		<button id='encode_btn' type='button' style="display:none">Encode Text</button>
 		<p id='output'></p>
 		<button id='change_key_btn' type='button' style="display:none">Change Key</button>

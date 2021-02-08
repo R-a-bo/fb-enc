@@ -79,7 +79,7 @@ function getRandWikiHash() {
 		const truncatedWikiText = linksRemoved.slice(0, 400);
         const outputText = "@@" + truncatedWikiText + "@@";
 		alert(outputText);
-        document.getElementById('output').innerHTML = outputText;
+        document.getElementById('output').innerHTML = "Copy and paste the following into your Facebook post:<br>" + outputText;
 		return crypto.subtle.digest('SHA-256', asciiToUint8Array(truncatedWikiText));
 	})
 }
