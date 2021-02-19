@@ -76,7 +76,7 @@ function getRandWikiHash() {
 		const wikiText = wikiPagesObj[Object.keys(wikiPagesObj)[0]].extract;
 		const lineBreaksRemoved = wikiText.replace(/(\n)/g, " ");
         const linksRemoved = lineBreaksRemoved.replace(/(\S)\.(\S)/g, "$1 $2");
-		const truncatedWikiText = linksRemoved.slice(0, 400);
+		const truncatedWikiText = linksRemoved.slice(0, 248);
         const outputText = "@@" + truncatedWikiText + "@@";
 		alert(outputText);
         document.getElementById('output').innerHTML = "Copy and paste the following into your Facebook post:<br>" + outputText;
